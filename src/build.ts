@@ -1,11 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * Build script for Pluie Texture Pack
+ * Advanced Asset Pipeline Build Script for Pluie Texture Pack
  *
- * This script creates a distributable ZIP file containing all texture pack files
- * for the specified Minecraft version. It compresses the entire version directory
- * into a single zip file that can be installed in Minecraft.
+ * This script builds texture packs using the advanced asset pipeline that processes
+ * shared source assets and transforms them for specific Minecraft versions.
  *
  * Usage: tsx scripts/build.ts [version|all]
  * Examples:
@@ -17,6 +16,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import archiver from 'archiver';
+import fsExtra from 'fs-extra';
+import { AssetPipeline } from './pipeline/pipeline.js';
+import { Beta173Transformer } from './pipeline/transformers/beta173.js';
 
 interface PackConfig {
     packName: string;
@@ -97,93 +99,143 @@ function ensureOutputDirectory(): void {
 }
 
 /**
- * Build a single version
+ * Build a single version using the advanced asset pipeline
  */
 export async function build(version: string = DEFAULT_VERSION): Promise<string> {
-    return new Promise((resolve, reject) => {
-        try {
-            const sourceDir = path.join(VERSIONS_DIR, version);
-            const zipFileName = `${packConfig.packName}-${version}.zip`;
-            const outputPath = path.join(OUTPUT_DIR, zipFileName);
-            const description = getVersionDescription(version);
+    try {
+        const zipFileName = `${packConfig.packName}-${version}.zip`;
+        const outputPath = path.join(OUTPUT_DIR, zipFileName);
+        const description = getVersionDescription(version);
 
-            // Validate inputs
-            if (!validateVersion(version)) {
-                reject(new Error(`Version directory not found: ${sourceDir}`));
-                return;
+        // Validate inputs
+        if (!validateVersion(version)) {
+            throw new Error(`Version directory not found: ${path.join(VERSIONS_DIR, version)}`);
+        }
+
+        // Ensure output directory exists
+        ensureOutputDirectory();
+
+        // Set up the asset pipeline
+        const pipeline = new AssetPipeline();
+
+        // Register transformers
+        pipeline.registerTransformer(new Beta173Transformer());
+
+        console.log(`🔨 Building ${packConfig.packName} texture pack with Advanced Asset Pipeline`);
+        console.log(`📋 Version: ${version}`);
+        console.log(`📝 ${description}`);
+        console.log(`💾 Output: ${zipFileName}`);
+        console.log('');
+
+        // Create temporary build directory
+        const tempBuildDir = path.join(OUTPUT_DIR, `.temp-${version}-${Date.now()}`);
+
+        try {
+            // Process assets through the pipeline
+            const result = await pipeline.processVersion(version, tempBuildDir);
+
+            if (!result.success) {
+                throw result.error || new Error('Pipeline processing failed');
             }
 
-            const buildConfig: BuildConfig = {
-                ...packConfig,
+            console.log(`✅ Pipeline processed ${result.processedFiles.length} files`);
+            if (result.skippedFiles.length > 0) {
+                console.log(`ℹ️  Skipped ${result.skippedFiles.length} files`);
+            }
+
+            // Copy any existing files from version directory that weren't processed
+            const versionDir = path.join(VERSIONS_DIR, version);
+            if (await fsExtra.pathExists(versionDir)) {
+                await fsExtra.copy(versionDir, tempBuildDir, {
+                    filter: (src) => {
+                        // Don't overwrite files that were already processed by the pipeline
+                        const relative = path.relative(versionDir, src);
+                        return !result.processedFiles.some(processed => processed === relative);
+                    }
+                });
+            }
+
+            // Create the ZIP file
+            await createZipFile(tempBuildDir, outputPath, {
+                packName: packConfig.packName,
                 version,
-                sourceDir,
-                zipFileName,
-                description
-            };
-
-            // Ensure output directory exists
-            ensureOutputDirectory();
-
-            // Create archive
-            const output = fs.createWriteStream(outputPath);
-            const archive = archiver('zip', {
-                zlib: { level: 9 } // Maximum compression
+                description,
             });
 
-            // Event handlers
-            output.on('close', () => {
-                const archiveSize = (archive.pointer() / 1024).toFixed(2);
-                console.log(`✅ ${archiveSize} KB total`);
-                console.log(`🎉 ${buildConfig.packName} texture pack created successfully!`);
-                console.log(`📁 Location: ${outputPath}`);
-                resolve(outputPath);
-            });
+            // Clean up temporary directory
+            await fsExtra.remove(tempBuildDir);
 
-            output.on('error', (error) => {
-                reject(new Error(`Failed to write output file: ${error.message}`));
-            });
-
-            archive.on('warning', (error) => {
-                if (error.code === 'ENOENT') {
-                    console.warn(`⚠️  Warning: ${error.message}`);
-                } else {
-                    reject(error);
-                }
-            });
-
-            archive.on('error', (error) => {
-                reject(new Error(`Archive creation failed: ${error.message}`));
-            });
-
-            // Start building
-            console.log(`🔨 Building ${buildConfig.packName} texture pack`);
-            console.log(`📋 Version: ${buildConfig.version}`);
-            console.log(`📝 ${buildConfig.description}`);
-            console.log(`📦 Source: ${buildConfig.sourceDir}`);
-            console.log(`💾 Output: ${buildConfig.zipFileName}`);
-            console.log('');
-
-            // Pipe archive data to the file
-            archive.pipe(output);
-
-            // Add all files from the source directory
-            archive.directory(buildConfig.sourceDir, false);
-
-            // Add info file
-            archive.append(
-                `${buildConfig.packName} Texture Pack\n` +
-                `Version: ${buildConfig.version}\n` +
-                `Description: ${buildConfig.description}\n` +
-                `Built: ${new Date().toISOString()}\n`,
-                { name: 'INFO.txt' }
-            );
-
-            // Complete the archive
-            archive.finalize();
+            return outputPath;
 
         } catch (error) {
-            reject(new Error(`Build initialization failed: ${error instanceof Error ? error.message : error}`));
+            // Clean up temporary directory on error
+            if (await fsExtra.pathExists(tempBuildDir)) {
+                await fsExtra.remove(tempBuildDir);
+            }
+            throw error;
         }
+
+    } catch (error) {
+        throw new Error(`Build failed: ${error instanceof Error ? error.message : error}`);
+    }
+}
+
+/**
+ * Create ZIP file from processed assets
+ */
+async function createZipFile(
+    sourceDir: string,
+    outputPath: string,
+    metadata: { packName: string; version: string; description: string }
+): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const output = fs.createWriteStream(outputPath);
+        const archive = archiver('zip', {
+            zlib: { level: 9 } // Maximum compression
+        });
+
+        // Event handlers
+        output.on('close', () => {
+            const archiveSize = (archive.pointer() / 1024).toFixed(2);
+            console.log(`✅ ${archiveSize} KB total`);
+            console.log(`🎉 ${metadata.packName} texture pack created successfully!`);
+            console.log(`📁 Location: ${outputPath}`);
+            resolve(outputPath);
+        });
+
+        output.on('error', (error) => {
+            reject(new Error(`Failed to write output file: ${error.message}`));
+        });
+
+        archive.on('warning', (error) => {
+            if (error.code === 'ENOENT') {
+                console.warn(`⚠️  Warning: ${error.message}`);
+            } else {
+                reject(error);
+            }
+        });
+
+        archive.on('error', (error) => {
+            reject(new Error(`Archive creation failed: ${error.message}`));
+        });
+
+        // Pipe archive data to the file
+        archive.pipe(output);
+
+        // Add all processed files
+        archive.directory(sourceDir, false);
+
+        // Add info file
+        archive.append(
+            `${metadata.packName}\n` +
+            `Version: ${metadata.version}\n` +
+            `Description: ${metadata.description}\n` +
+            `Built: ${new Date().toISOString()}\n`,
+            { name: 'INFO.txt' }
+        );
+
+        // Complete the archive
+        archive.finalize();
     });
 }
 

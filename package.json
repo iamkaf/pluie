@@ -10,6 +10,7 @@
     "dev": "npm run watch",
     "start": "npm run watch",
     "edit": "npx tsx src/index.ts edit",
+    "decompose": "npx tsx src/index.ts decompose",
     "list": "npx tsx src/index.ts list",
     "status": "npx @dotenvx/dotenvx run -- npx tsx src/index.ts status",
     "aseprite": "npx @dotenvx/dotenvx run -- npx tsx src/index.ts edit",
@@ -27,11 +28,16 @@
   "dependencies": {
     "archiver": "^6.0.1",
     "chokidar": "^5.0.0",
-    "commander": "^12.1.0"
+    "commander": "^12.1.0",
+    "fs-extra": "^11.3.2",
+    "glob": "^10.5.0",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@types/archiver": "^7.0.0",
+    "@types/fs-extra": "^11.0.4",
     "@types/node": "^24.10.1",
+    "@types/sharp": "^0.31.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }

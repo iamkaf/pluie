@@ -1,10 +1,12 @@
 import { Command } from 'commander';
+import path from 'path';
+import sharp from 'sharp';
 
 export function setupEditCommand(program: Command): void {
     program
         .command('edit')
         .description('Launch Aseprite to edit texture files')
-        .argument('[files...]', 'Texture files to edit (e.g., b1.7.3/terrain.png)')
+        .argument('[files...]', 'Texture files to edit (e.g., b1.7.3/terrain.png, blocks/grass.png, items/diamond_sword.png)')
         .option('-b, --batch <script>', 'Run Aseprite in batch mode with script')
         .option('--shell', 'Launch Aseprite without detaching from terminal')
         .action(async (files, options) => {
@@ -38,14 +40,69 @@ export function setupEditCommand(program: Command): void {
                     process.exit(1);
                 }
 
-                // Update file paths to include versions/ directory if they're version-specific
-                const updatedFiles = files.map((file: string) => {
+                // Validate and update file paths
+                const updatedFiles = [];
+                for (const file of files) {
+                    // Validate that file has a path
+                    if (!file.includes('/')) {
+                        console.error('❌ Error: Please provide a full path for texture files.');
+                        console.error('');
+                        console.error('Examples:');
+                        console.error('  npm run edit blocks/grass.png');
+                        console.error('  npm run edit items/diamond_sword.png');
+                        console.error('  npm run edit gui/crafting.png');
+                        console.error('  npm run edit environment/sun.png');
+                        console.error('  npm run edit b1.7.3/terrain.png');
+                        console.error('');
+                        console.error('Available asset types: blocks, items, gui, environment, misc, particles');
+                        process.exit(1);
+                    }
+
+                    let fullPath = file;
+
                     // If the file looks like it's pointing to a version file
                     if (/^b\d+\.\d+\.\d+\//.test(file)) {
-                        return `versions/${file}`;
+                        fullPath = `versions/${file}`;
                     }
-                    return file;
-                });
+                    // If it starts with versions/shared or versions/b1.7.3, keep as is
+                    else if (!file.startsWith('versions/')) {
+                        fullPath = `versions/shared/assets/${file}`;
+                    }
+
+                    // Check if file exists, create it if it doesn't
+                    if (!fs.existsSync(fullPath)) {
+                        console.log(`📝 File not found: ${fullPath}`);
+                        console.log(`✨ Creating 16x16 transparent PNG: ${fullPath}`);
+
+                        // Ensure directory exists
+                        const dir = path.dirname(fullPath);
+                        if (!fs.existsSync(dir)) {
+                            fs.mkdirSync(dir, { recursive: true });
+                        }
+
+                        // Create 16x16 transparent PNG using sharp
+                        try {
+                            await sharp({
+                                create: {
+                                    width: 16,
+                                    height: 16,
+                                    channels: 4,
+                                    background: { r: 0, g: 0, b: 0, alpha: 0 }
+                                }
+                            })
+                            .png()
+                            .toFile(fullPath);
+                            console.log(`✅ Created: ${fullPath}`);
+                        } catch (error) {
+                            console.error(`❌ Failed to create ${fullPath}:`, error);
+                            process.exit(1);
+                        }
+                    } else {
+                        console.log(`📁 Found: ${fullPath}`);
+                    }
+
+                    updatedFiles.push(fullPath);
+                }
 
                 const asepriteArgs = updatedFiles;
                 if (options.batch) {

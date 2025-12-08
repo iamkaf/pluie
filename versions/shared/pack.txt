@@ -1,1 +1,2 @@
-Pluie!
+# Pluie Texture Pack
+description=A gentle, rain-inspired texture pack for Minecraft
