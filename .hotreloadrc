@@ -1,0 +1,8 @@
+# Hot reload configuration for Pluie Texture Pack
+# Format: key=value
+
+# General settings
+deploy_on_change=true
+debounce_ms=500
+notifications=true
+watch_all_versions=false

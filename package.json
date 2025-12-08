@@ -2,13 +2,18 @@
   "name": "pluie-texture-pack",
   "version": "1.0.0",
   "description": "Pluie - A gentle, rain-inspired texture pack for Minecraft",
-  "main": "scripts/build.js",
+  "main": "src/index.js",
   "scripts": {
-    "build": "node scripts/build.js",
-    "build:b1.7.3": "node scripts/build.js b1.7.3",
-    "deploy": "node scripts/deploy.js",
-    "deploy:b1.7.3": "node scripts/deploy.js b1.7.3",
-    "aseprite": "npx @dotenvx/dotenvx run -- node scripts/aseprite.js"
+    "build": "npx tsx src/index.ts build",
+    "deploy": "npx tsx src/index.ts deploy",
+    "watch": "npx tsx src/index.ts watch",
+    "dev": "npm run watch",
+    "start": "npm run watch",
+    "edit": "npx tsx src/index.ts edit",
+    "list": "npx tsx src/index.ts list",
+    "status": "npx @dotenvx/dotenvx run -- npx tsx src/index.ts status",
+    "aseprite": "npx @dotenvx/dotenvx run -- npx tsx src/index.ts edit",
+    "typecheck": "npx tsc --noEmit"
   },
   "keywords": [
     "minecraft",
@@ -20,6 +25,14 @@
   "author": "iamkaf",
   "license": "MIT",
   "dependencies": {
-    "archiver": "^6.0.1"
+    "archiver": "^6.0.1",
+    "chokidar": "^5.0.0",
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/archiver": "^7.0.0",
+    "@types/node": "^24.10.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   }
 }
