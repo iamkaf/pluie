@@ -1,0 +1,23 @@
+{
+  "name": "pluie-texture-pack",
+  "version": "1.0.0",
+  "description": "Pluie - A gentle, rain-inspired texture pack for Minecraft",
+  "main": "scripts/build.js",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "build:b1.7.3": "node scripts/build.js b1.7.3",
+    "aseprite": "npx @dotenvx/dotenvx run -- node scripts/aseprite.js"
+  },
+  "keywords": [
+    "minecraft",
+    "texture-pack",
+    "beta-1.7.3",
+    "pluie",
+    "rain"
+  ],
+  "author": "iamkaf",
+  "license": "MIT",
+  "dependencies": {
+    "archiver": "^6.0.1"
+  }
+}

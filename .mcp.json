@@ -1,0 +1,27 @@
+{
+  "mcpServers": {
+    "echo": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/home/kaf/code/apps/mcp/echo-mcp-server/build/index.js"
+      ],
+      "env": {}
+    },
+    "resource-pack": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/home/kaf/code/apps/mcp/resource-pack-mcp/build/index.js"
+      ],
+      "env": {}
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
+    }
+  }
+}
