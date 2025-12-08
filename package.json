@@ -6,6 +6,8 @@
   "scripts": {
     "build": "node scripts/build.js",
     "build:b1.7.3": "node scripts/build.js b1.7.3",
+    "deploy": "node scripts/deploy.js",
+    "deploy:b1.7.3": "node scripts/deploy.js b1.7.3",
     "aseprite": "npx @dotenvx/dotenvx run -- node scripts/aseprite.js"
   },
   "keywords": [

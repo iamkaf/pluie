@@ -1,0 +1,7 @@
+# Deployment configuration for Pluie Texture Pack
+# Format: version=minecraft_path[:options]
+
+# Options:
+#   backup    - Create backup before deployment (default: true)
+
+b1.7.3=/home/kaf/.local/share/ModrinthApp/profiles/Golden Age/texturepacks
