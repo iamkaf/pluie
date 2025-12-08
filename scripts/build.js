@@ -25,7 +25,7 @@ const config = {
 // Paths
 const sourceDir = path.join(__dirname, '..', 'b1.7.3');
 const outputDir = path.join(__dirname, '..', 'output');
-const zipFileName = `${config.packName}-Texture-Pack-${config.version}.zip`;
+const zipFileName = `${config.packName}-${config.version}.zip`;
 
 // Verify source directory exists
 if (!fs.existsSync(sourceDir)) {
@@ -92,3 +92,48 @@ archive.append(
 
 // Complete the archive
 archive.finalize();
+
+// Export build function for use by other scripts
+module.exports = { build };
+
+async function build(version = 'b1.7.3') {
+    return new Promise((resolve, reject) => {
+        const buildConfig = { ...config, version };
+        const sourceDir = path.join(__dirname, '..', version);
+        const zipFileName = `${buildConfig.packName}-${buildConfig.version}.zip`;
+
+        // Verify source directory exists
+        if (!fs.existsSync(sourceDir)) {
+            reject(new Error(`Source directory not found: ${sourceDir}`));
+            return;
+        }
+
+        // Create output directory if it doesn't exist
+        if (!fs.existsSync(outputDir)) {
+            fs.mkdirSync(outputDir, { recursive: true });
+        }
+
+        const output = fs.createWriteStream(path.join(outputDir, zipFileName));
+        const archive = archiver('zip', {
+            zlib: { level: 9 }
+        });
+
+        output.on('close', () => {
+            resolve(path.join(outputDir, zipFileName));
+        });
+
+        archive.on('error', reject);
+        archive.pipe(output);
+        archive.directory(sourceDir, false);
+        archive.finalize();
+    });
+}
+
+// Run build if this script is executed directly
+if (require.main === module) {
+    const targetVersion = process.argv[2] || 'b1.7.3';
+    build(targetVersion).catch(err => {
+        console.error('❌ Build failed:', err.message);
+        process.exit(1);
+    });
+}

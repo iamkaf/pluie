@@ -15,6 +15,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { build } = require('./build');
 
 // Paths
 const deployConfigPath = path.join(__dirname, '..', '.deployrc');
@@ -60,7 +61,7 @@ function parseDeployConfig() {
 // Create backup of existing texture pack
 function createBackup(sourcePath, version) {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const backupFileName = `Pluie-Texture-Pack-${version}-backup-${timestamp}.zip`;
+    const backupFileName = `Pluie-${version}-backup-${timestamp}.zip`;
     const backupPath = path.join(backupDir, backupFileName);
 
     if (!fs.existsSync(sourcePath)) {
@@ -78,38 +79,40 @@ function createBackup(sourcePath, version) {
 }
 
 // Deploy texture pack
-function deployTexturePack(version, config) {
-    const sourceFileName = `Pluie-Texture-Pack-${version}.zip`;
-    const sourcePath = path.join(outputDir, sourceFileName);
-    const targetPath = path.join(config.path, sourceFileName);
+async function deployTexturePack(version, config) {
+    const sourceFileName = `Pluie-${version}.zip`;
 
-    // Check if source file exists
-    if (!fs.existsSync(sourcePath)) {
-        console.error(`❌ Error: Built texture pack not found: ${sourceFileName}`);
-        console.log(`Run 'npm run build:${version}' first`);
+    // Build the texture pack first
+    console.log(`🔨 Building ${version}...`);
+    try {
+        const sourcePath = await build(version);
+        console.log(`✅ Built: ${sourceFileName}`);
+        const targetPath = path.join(config.path, sourceFileName);
+
+        // Create target directory if it doesn't exist
+        if (!fs.existsSync(config.path)) {
+            fs.mkdirSync(config.path, { recursive: true });
+            console.log(`📁 Created directory: ${config.path}`);
+        }
+
+        // Backup existing file if requested
+        if (config.backup && fs.existsSync(targetPath)) {
+            createBackup(targetPath, version);
+        }
+
+        // Deploy new file
+        fs.copyFileSync(sourcePath, targetPath);
+        console.log(`✅ Deployed to: ${targetPath}`);
+
+        return true;
+    } catch (err) {
+        console.error(`❌ Build failed: ${err.message}`);
         return false;
     }
-
-    // Create target directory if it doesn't exist
-    if (!fs.existsSync(config.path)) {
-        fs.mkdirSync(config.path, { recursive: true });
-        console.log(`📁 Created directory: ${config.path}`);
-    }
-
-    // Backup existing file if requested
-    if (config.backup && fs.existsSync(targetPath)) {
-        createBackup(targetPath, version);
-    }
-
-    // Deploy new file
-    fs.copyFileSync(sourcePath, targetPath);
-    console.log(`✅ Deployed to: ${targetPath}`);
-
-    return true;
 }
 
 // Main deployment function
-function deploy(targetVersion) {
+async function deploy(targetVersion) {
     console.log('🚀 Deploying Pluie Texture Pack...\n');
 
     const config = parseDeployConfig();
@@ -129,7 +132,7 @@ function deploy(targetVersion) {
         }
 
         console.log(`📦 Deploying ${version} to ${config[version].path}`);
-        if (deployTexturePack(version, config[version])) {
+        if (await deployTexturePack(version, config[version])) {
             successCount++;
         }
         console.log('');
@@ -142,4 +145,7 @@ function deploy(targetVersion) {
 const targetVersion = process.argv[2];
 
 // Start deployment
-deploy(targetVersion);
+deploy(targetVersion).catch(err => {
+    console.error('❌ Deployment failed:', err.message);
+    process.exit(1);
+});
