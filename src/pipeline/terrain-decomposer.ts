@@ -2,14 +2,23 @@ import fs from 'fs-extra';
 import path from 'path';
 import sharp from 'sharp';
 
-interface TerrainGridPosition {
+interface GridPosition {
   textureName: string;
   gridX: number;
   gridY: number;
 }
 
-// Beta 1.7.3 terrain.png grid positions (16x16 grid = 256x256 pixels)
-const TERRAIN_GRID_POSITIONS: TerrainGridPosition[] = [
+interface CoordinateData {
+  rows: number;
+  cols: number;
+  tile_size: number;
+  coordinates: {
+    [key: string]: string; // "x,y": "texture_name"
+  };
+}
+
+// Legacy Beta 1.7.3 terrain.png grid positions (16x16 grid = 256x256 pixels)
+const LEGACY_TERRAIN_POSITIONS: GridPosition[] = [
   // Row 0
   { textureName: 'grass', gridX: 0, gridY: 0 },
   { textureName: 'stone', gridX: 1, gridY: 0 },
@@ -94,40 +103,99 @@ const TERRAIN_GRID_POSITIONS: TerrainGridPosition[] = [
   { textureName: 'cake', gridX: 8, gridY: 4 },
 ];
 
-export class TerrainDecomposer {
-  static async decomposeTerrain(terrainPath: string, outputDir: string): Promise<void> {
-    console.log(`🔨 Decomposing terrain.png: ${terrainPath}`);
-    console.log(`📁 Output directory: ${outputDir}`);
+async function loadCoordinateData(type: 'terrain' | 'items'): Promise<CoordinateData | null> {
+  const coordFile = type === 'terrain'
+    ? 'atlas_coordinates_terrain.json'
+    : 'atlas_coordinates_items.json';
 
-    if (!await fs.pathExists(terrainPath)) {
-      throw new Error(`Terrain file not found: ${terrainPath}`);
+  const coordPath = path.join(process.cwd(), coordFile);
+  if (await fs.pathExists(coordPath)) {
+    return await fs.readJson(coordPath);
+  }
+  return null;
+}
+
+function parseCoordinates(coordinates: CoordinateData): GridPosition[] {
+  const positions: GridPosition[] = [];
+
+  for (const [coordKey, textureName] of Object.entries(coordinates.coordinates)) {
+    if (coordKey === 'remaining_tiles' || textureName === 'unused') continue;
+
+    const [xStr, yStr] = coordKey.split(',');
+    const gridX = parseInt(xStr);
+    const gridY = parseInt(yStr);
+
+    positions.push({ textureName, gridX, gridY });
+  }
+
+  return positions;
+}
+
+function determineFileType(filePath: string): 'terrain' | 'items' {
+  const fileName = path.basename(filePath).toLowerCase();
+  if (fileName.includes('terrain') || fileName.includes('blocks')) {
+    return 'terrain';
+  } else if (fileName.includes('items') || fileName.includes('gui')) {
+    return 'items';
+  }
+  // Default to terrain if unclear
+  return 'terrain';
+}
+
+export class TextureDecomposer {
+  static async decomposeTextures(filePath: string, outputDir: string): Promise<void> {
+    const fileType = determineFileType(filePath);
+    const assetType = fileType === 'terrain' ? 'blocks' : 'items';
+    const defaultOutputDir = path.join('versions/shared/assets', assetType);
+
+    console.log(`🔨 Decomposing ${fileType} file: ${filePath}`);
+    console.log(`📁 Output directory: ${outputDir || defaultOutputDir}`);
+
+    if (!await fs.pathExists(filePath)) {
+      throw new Error(`${fileType} file not found: ${filePath}`);
     }
 
-    // Ensure output directory exists
-    await fs.ensureDir(outputDir);
+    // Use default output directory if none specified
+    const finalOutputDir = outputDir || defaultOutputDir;
+    await fs.ensureDir(finalOutputDir);
 
-    // Load the terrain.png
-    const terrainImage = sharp(terrainPath);
-    const metadata = await terrainImage.metadata();
+    // Load the image
+    const textureImage = sharp(filePath);
+    const metadata = await textureImage.metadata();
 
     if (!metadata.width || !metadata.height) {
-      throw new Error('Could not read terrain.png dimensions');
+      throw new Error(`Could not read ${fileType}.png dimensions`);
     }
 
     if (metadata.width !== 256 || metadata.height !== 256) {
-      throw new Error(`Expected 256x256 terrain.png, got ${metadata.width}x${metadata.height}`);
+      throw new Error(`Expected 256x256 ${fileType}.png, got ${metadata.width}x${metadata.height}`);
     }
 
-    console.log(`📐 Terrain dimensions: ${metadata.width}x${metadata.height}`);
+    console.log(`📐 Image dimensions: ${metadata.width}x${metadata.height}`);
+
+    // Try to load coordinate data, fall back to legacy positions if not available
+    const coordData = await loadCoordinateData(fileType);
+    let positions: GridPosition[];
+
+    if (coordData) {
+      console.log(`📋 Using JSON coordinate data for ${fileType}`);
+      positions = parseCoordinates(coordData);
+    } else if (fileType === 'terrain') {
+      console.log(`⚠️  No coordinate file found, using legacy terrain positions`);
+      positions = LEGACY_TERRAIN_POSITIONS;
+    } else {
+      console.log(`❌ No coordinate file found for items and no legacy positions available`);
+      return;
+    }
 
     // Extract each texture
     const textureSize = 16;
     let extractedCount = 0;
     let skippedCount = 0;
 
-    for (const position of TERRAIN_GRID_POSITIONS) {
+    for (const position of positions) {
       try {
-        const outputPath = path.join(outputDir, `${position.textureName}.png`);
+        const outputPath = path.join(finalOutputDir, `${position.textureName}.png`);
 
         // Skip if file already exists (preserve user edits)
         if (await fs.pathExists(outputPath)) {
@@ -136,11 +204,13 @@ export class TerrainDecomposer {
           continue;
         }
 
-        // Extract the 16x16 tile from the terrain.png
+        // Extract the 16x16 tile from the image
         const left = position.gridX * textureSize;
         const top = position.gridY * textureSize;
 
-        await terrainImage
+        // Create fresh image instance for each extraction to avoid Sharp issues
+        const freshImage = sharp(filePath);
+        const extractedBuffer = await freshImage
           .extract({
             left,
             top,
@@ -148,7 +218,9 @@ export class TerrainDecomposer {
             height: textureSize,
           })
           .png()
-          .toFile(outputPath);
+          .toBuffer();
+
+        await fs.writeFile(outputPath, extractedBuffer);
 
         console.log(`✅ Extracted ${position.textureName} at (${position.gridX}, ${position.gridY}) → ${outputPath}`);
         extractedCount++;
@@ -159,34 +231,49 @@ export class TerrainDecomposer {
     }
 
     console.log(`\n🎉 Decomposition complete!`);
-    console.log(`📊 Extracted: ${extractedCount} textures`);
+    console.log(`📊 Extracted: ${extractedCount} ${fileType} textures`);
     console.log(`⏭️  Skipped: ${skippedCount} textures (already exist)`);
   }
 
-  static async extractNonEmptyRegions(terrainPath: string, outputDir: string): Promise<void> {
-    console.log(`🔍 Detecting non-empty regions in terrain.png...`);
+  static async extractNonEmptyRegions(filePath: string, _outputDir: string): Promise<void> {
+    const fileType = determineFileType(filePath);
 
-    if (!await fs.pathExists(terrainPath)) {
-      throw new Error(`Terrain file not found: ${terrainPath}`);
+    console.log(`🔍 Detecting non-empty regions in ${fileType}.png...`);
+
+    if (!await fs.pathExists(filePath)) {
+      throw new Error(`${fileType} file not found: ${filePath}`);
     }
 
-    const terrainImage = sharp(terrainPath);
-    const { data } = await terrainImage
+    const textureImage = sharp(filePath);
+    const { data } = await textureImage
       .raw()
       .toBuffer({ resolveWithObject: true });
 
+    // Try to load coordinate data, fall back to legacy positions if not available
+    const coordData = await loadCoordinateData(fileType);
+    let positions: GridPosition[];
+
+    if (coordData) {
+      positions = parseCoordinates(coordData);
+    } else if (fileType === 'terrain') {
+      positions = LEGACY_TERRAIN_POSITIONS;
+    } else {
+      console.log(`❌ No coordinate file found for items and no legacy positions available`);
+      return;
+    }
+
     // Check each grid position for non-transparent content
     const textureSize = 16;
-    const terrainWidth = 256;
+    const imageWidth = 256;
     let nonEmptyCount = 0;
 
-    for (const position of TERRAIN_GRID_POSITIONS) {
+    for (const position of positions) {
       const startX = position.gridX * textureSize;
       const startY = position.gridY * textureSize;
       let hasContent = false;
 
       // Sample the center pixel of each texture
-      const centerPixelIndex = ((startY + 8) * terrainWidth + (startX + 8)) * 4;
+      const centerPixelIndex = ((startY + 8) * imageWidth + (startX + 8)) * 4;
       const alpha = data[centerPixelIndex + 3];
 
       if (alpha > 0) {
@@ -199,6 +286,11 @@ export class TerrainDecomposer {
       }
     }
 
-    console.log(`📊 Found ${nonEmptyCount} non-empty textures in terrain.png`);
+    console.log(`📊 Found ${nonEmptyCount} non-empty textures in ${fileType}.png`);
+  }
+
+  // Legacy method for backward compatibility
+  static async decomposeTerrain(terrainPath: string, outputDir: string): Promise<void> {
+    return this.decomposeTextures(terrainPath, outputDir);
   }
 }

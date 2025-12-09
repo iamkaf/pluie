@@ -5,6 +5,7 @@ import { setupWatchCommand } from './commands/watch.js';
 import { setupEditCommand } from './commands/edit.js';
 import { setupListCommand } from './commands/list.js';
 import { setupStatusCommand } from './commands/status.js';
+import { setupDecomposeCommand } from './commands/decompose.js';
 
 export function setupCli(): Command {
     const program = new Command();
@@ -22,6 +23,7 @@ export function setupCli(): Command {
     setupEditCommand(program);
     setupListCommand(program);
     setupStatusCommand(program);
+    setupDecomposeCommand(program);
 
     return program;
 }
