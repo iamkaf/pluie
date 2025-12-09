@@ -3,101 +3,19 @@ import path from 'path';
 import sharp from 'sharp';
 import { AssetFile, BuildContext, ProcessResult, VersionTransformer, AssetType } from '../types.js';
 
-interface TerrainGridPosition {
-  textureName: string;
-  gridX: number;
-  gridY: number;
+interface TerrainCoordinateData {
+  rows: number;
+  cols: number;
+  tile_size: number;
+  coordinates: {
+    [key: string]: string; // "x,y": "texture_name"
+  };
 }
-
-// Beta 1.7.3 terrain.png grid positions (16x16 grid = 256x256 pixels)
-const TERRAIN_GRID_POSITIONS: TerrainGridPosition[] = [
-  // Row 0
-  { textureName: 'grass', gridX: 0, gridY: 0 },
-  { textureName: 'stone', gridX: 1, gridY: 0 },
-  { textureName: 'dirt', gridX: 2, gridY: 0 },
-  { textureName: 'cobblestone', gridX: 3, gridY: 0 },
-  { textureName: 'planks', gridX: 4, gridY: 0 },
-  { textureName: 'sapling', gridX: 5, gridY: 0 },
-  { textureName: 'bedrock', gridX: 6, gridY: 0 },
-  { textureName: 'water', gridX: 7, gridY: 0 },
-  { textureName: 'waterflowing', gridX: 8, gridY: 0 },
-  { textureName: 'lava', gridX: 9, gridY: 0 },
-  { textureName: 'lavaflowing', gridX: 10, gridY: 0 },
-  { textureName: 'sand', gridX: 11, gridY: 0 },
-  { textureName: 'gravel', gridX: 12, gridY: 0 },
-  { textureName: 'goldore', gridX: 13, gridY: 0 },
-  { textureName: 'ironore', gridX: 14, gridY: 0 },
-  { textureName: 'coalore', gridX: 15, gridY: 0 },
-
-  // Row 1
-  { textureName: 'log', gridX: 0, gridY: 1 },
-  { textureName: 'leaves', gridX: 1, gridY: 1 },
-  { textureName: 'grass_carried', gridX: 2, gridY: 1 },
-  { textureName: 'grass_top', gridX: 3, gridY: 1 },
-  { textureName: 'flowers', gridX: 4, gridY: 1 },
-  { textureName: 'roses', gridX: 5, gridY: 1 },
-  { textureName: 'mushroom_red', gridX: 6, gridY: 1 },
-  { textureName: 'mushroom_brown', gridX: 7, gridY: 1 },
-  { textureName: 'goldblock', gridX: 8, gridY: 1 },
-  { textureName: 'ironblock', gridX: 9, gridY: 1 },
-  { textureName: 'double_slab', gridX: 10, gridY: 1 },
-  { textureName: 'slab', gridX: 11, gridY: 1 },
-  { textureName: 'brick', gridX: 12, gridY: 1 },
-  { textureName: 'tnt', gridX: 13, gridY: 1 },
-  { textureName: 'bookshelf', gridX: 14, gridY: 1 },
-  { textureName: 'mossy_cobblestone', gridX: 15, gridY: 1 },
-
-  // Row 2
-  { textureName: 'obsidian', gridX: 0, gridY: 2 },
-  { textureName: 'torch', gridX: 1, gridY: 2 },
-  { textureName: 'fire', gridX: 2, gridY: 2 },
-  { textureName: 'mob_spawner', gridX: 3, gridY: 2 },
-  { textureName: 'oak_stairs', gridX: 4, gridY: 2 },
-  { textureName: 'chest', gridX: 5, gridY: 2 },
-  { textureName: 'redstone_wire', gridX: 6, gridY: 2 },
-  { textureName: 'diamondore', gridX: 7, gridY: 2 },
-  { textureName: 'diamondblock', gridX: 8, gridY: 2 },
-  { textureName: 'crafting_table', gridX: 9, gridY: 2 },
-  { textureName: 'crops', gridX: 10, gridY: 2 },
-  { textureName: 'soil', gridX: 11, gridY: 2 },
-  { textureName: 'furnace', gridX: 12, gridY: 2 },
-  { textureName: 'furnace_lit', gridX: 13, gridY: 2 },
-  { textureName: 'sign_post', gridX: 14, gridY: 2 },
-  { textureName: 'door_wood_upper', gridX: 15, gridY: 2 },
-
-  // Row 3
-  { textureName: 'ladder', gridX: 0, gridY: 3 },
-  { textureName: 'rails', gridX: 1, gridY: 3 },
-  { textureName: 'cobblestone_stairs', gridX: 2, gridY: 3 },
-  { textureName: 'door_wood_lower', gridX: 3, gridY: 3 },
-  { textureName: 'iron_door_upper', gridX: 4, gridY: 3 },
-  { textureName: 'iron_door_lower', gridX: 5, gridY: 3 },
-  { textureName: 'redstone_ore', gridX: 6, gridY: 3 },
-  { textureName: 'redstone_ore_lit', gridX: 7, gridY: 3 },
-  { textureName: 'stone_stairs', gridX: 8, gridY: 3 },
-  { textureName: 'button_stone', gridX: 9, gridY: 3 },
-  { textureName: 'snow', gridX: 10, gridY: 3 },
-  { textureName: 'ice', gridX: 11, gridY: 3 },
-  { textureName: 'snow_block', gridX: 12, gridY: 3 },
-  { textureName: 'cactus', gridX: 13, gridY: 3 },
-  { textureName: 'clay', gridX: 14, gridY: 3 },
-  { textureName: 'reeds', gridX: 15, gridY: 3 },
-
-  // Row 4
-  { textureName: 'jukebox', gridX: 0, gridY: 4 },
-  { textureName: 'fence', gridX: 1, gridY: 4 },
-  { textureName: 'pumpkin', gridX: 2, gridY: 4 },
-  { textureName: 'bloodstone', gridX: 3, gridY: 4 },
-  { textureName: 'slow_sand', gridX: 4, gridY: 4 },
-  { textureName: 'lightstone', gridX: 5, gridY: 4 },
-  { textureName: 'portal', gridX: 6, gridY: 4 },
-  { textureName: 'jack_o_lantern', gridX: 7, gridY: 4 },
-  { textureName: 'cake', gridX: 8, gridY: 4 },
-];
 
 export class Beta173Transformer implements VersionTransformer {
   public version = 'b1.7.3';
   public name = 'Beta 1.7.3 Legacy Format Transformer';
+  private coordinateCache: TerrainCoordinateData | null = null;
 
   getRequiredAssetTypes(): AssetType[] {
     return [AssetType.TEXTURE_BLOCKS, AssetType.METADATA_PACK];
@@ -105,6 +23,21 @@ export class Beta173Transformer implements VersionTransformer {
 
   isApplicable(version: string): boolean {
     return version === 'b1.7.3' || version === 'beta1.7.3';
+  }
+
+  private async loadCoordinates(): Promise<TerrainCoordinateData> {
+    if (this.coordinateCache) {
+      return this.coordinateCache;
+    }
+
+    const coordPath = path.join(process.cwd(), 'atlas_coordinates_terrain.json');
+    if (!await fs.pathExists(coordPath)) {
+      throw new Error(`Coordinate file not found: ${coordPath}`);
+    }
+
+    const data = await fs.readJson(coordPath);
+    this.coordinateCache = data;
+    return data;
   }
 
   async transform(assets: AssetFile[], context: BuildContext): Promise<ProcessResult> {
@@ -150,6 +83,10 @@ export class Beta173Transformer implements VersionTransformer {
       return;
     }
 
+    // Load coordinate mappings
+    const coordinates = await this.loadCoordinates();
+    console.log(`[Beta173] Loaded ${Object.keys(coordinates.coordinates).length} coordinate mappings`);
+
     // Create a 256x256 canvas
     const canvas = sharp({
       create: {
@@ -162,36 +99,79 @@ export class Beta173Transformer implements VersionTransformer {
 
     const compositeLayers: { input: Buffer; left: number; top: number }[] = [];
 
-    for (const blockAsset of blockAssets) {
-      const textureName = this.getTextureNameFromPath(blockAsset.relativePath);
-      const position = TERRAIN_GRID_POSITIONS.find(pos =>
-        pos.textureName === textureName ||
-        blockAsset.relativePath.includes(pos.textureName)
-      );
+    // Load unused texture once
+    const unusedPath = path.join(process.cwd(), 'versions/shared/assets/blocks/unused.png');
+    const unusedBuffer = await fs.pathExists(unusedPath)
+      ? await sharp(unusedPath).resize(16, 16).png().toBuffer()
+      : null;
 
-      if (position) {
-        console.log(`[Beta173] Placing ${textureName} at grid position (${position.gridX}, ${position.gridY})`);
+    // Process all coordinates, filling unused slots with magenta texture
+    for (const [coordKey, textureName] of Object.entries(coordinates.coordinates)) {
+      if (coordKey === 'remaining_tiles') continue; // Skip metadata
 
-        try {
-          // Load and resize texture to 16x16 if needed
-          const imageBuffer = await fs.readFile(blockAsset.sourcePath);
-          const resizedImage = await sharp(imageBuffer)
-            .resize(16, 16)
-            .png()
-            .toBuffer();
+      const [xStr, yStr] = coordKey.split(',');
+      const gridX = parseInt(xStr);
+      const gridY = parseInt(yStr);
 
-          compositeLayers.push({
-            input: resizedImage,
-            left: position.gridX * 16,
-            top: position.gridY * 16,
-          });
-        } catch (error) {
-          console.warn(`[Beta173] Warning: Could not process texture ${blockAsset.relativePath}:`, error);
-          skippedFiles.push(blockAsset.relativePath);
+      // Skip if coordinates are out of bounds
+      if (gridX >= coordinates.cols || gridY >= coordinates.rows) {
+        console.warn(`[Beta173] Skipping out-of-bounds coordinate: ${coordKey}`);
+        continue;
+      }
+
+      let imageBuffer: Buffer | null = null;
+      let isUnused = false;
+
+      if (textureName === 'unused') {
+        // Use magenta texture for unused slots
+        if (unusedBuffer) {
+          imageBuffer = unusedBuffer;
+          isUnused = true;
+        } else {
+          // Fallback: create magenta texture on the fly
+          imageBuffer = await sharp({
+            create: {
+              width: 16,
+              height: 16,
+              channels: 4,
+              background: { r: 255, g: 0, b: 255, alpha: 1 }
+            }
+          }).png().toBuffer();
+          isUnused = true;
         }
       } else {
-        console.log(`[Beta173] No grid position found for texture: ${textureName}`);
-        skippedFiles.push(blockAsset.relativePath);
+        // Find matching asset
+        const matchingAsset = blockAssets.find(asset =>
+          this.getTextureNameFromPath(asset.relativePath) === textureName
+        );
+
+        if (matchingAsset) {
+          try {
+            imageBuffer = await sharp(matchingAsset.sourcePath)
+              .resize(16, 16)
+              .png()
+              .toBuffer();
+          } catch (error) {
+            console.warn(`[Beta173] Warning: Could not process texture ${matchingAsset.relativePath}:`, error);
+            skippedFiles.push(matchingAsset.relativePath);
+            continue;
+          }
+        } else {
+          console.log(`[Beta173] No asset found for texture: ${textureName} at ${coordKey}`);
+          skippedFiles.push(textureName);
+          continue;
+        }
+      }
+
+      if (imageBuffer) {
+        const label = isUnused ? 'unused (magenta)' : textureName;
+        console.log(`[Beta173] Placing ${label} at grid position (${gridX}, ${gridY})`);
+
+        compositeLayers.push({
+          input: imageBuffer,
+          left: gridX * coordinates.tile_size,
+          top: gridY * coordinates.tile_size,
+        });
       }
     }
 
