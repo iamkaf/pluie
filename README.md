@@ -11,6 +11,9 @@ A gentle, rain-inspired texture pack for Minecraft with a modern CLI toolchain f
 ## Quick Start
 
 ```bash
+git clone https://github.com/iamkaf/pluie
+cd pluie
+
 # Install dependencies
 npm install
 
