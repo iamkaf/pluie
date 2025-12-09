@@ -3,573 +3,261 @@
   "cols": 16,
   "tile_size": 16,
   "coordinates": {
-    "iron_shovel": [
-      0,
-      0
-    ],
-    "iron_pickaxe": [
-      1,
-      0
-    ],
-    "iron_axe": [
-      2,
-      0
-    ],
-    "flint_and_steel": [
-      3,
-      0
-    ],
-    "apple": [
-      4,
-      0
-    ],
-    "bow": [
-      5,
-      0
-    ],
-    "arrow": [
-      6,
-      0
-    ],
-    "coal": [
-      7,
-      0
-    ],
-    "diamond": [
-      8,
-      0
-    ],
-    "iron_ingot": [
-      9,
-      0
-    ],
-    "gold_ingot": [
-      10,
-      0
-    ],
-    "iron_sword": [
-      11,
-      0
-    ],
-    "wooden_sword": [
-      12,
-      0
-    ],
-    "wooden_shovel": [
-      13,
-      0
-    ],
-    "wooden_pickaxe": [
-      14,
-      0
-    ],
-    "wooden_axe": [
-      15,
-      0
-    ],
-    "stone_sword": [
-      0,
-      1
-    ],
-    "stone_shovel": [
-      1,
-      1
-    ],
-    "stone_pickaxe": [
-      2,
-      1
-    ],
-    "stone_axe": [
-      3,
-      1
-    ],
-    "diamond_sword": [
-      4,
-      1
-    ],
-    "diamond_shovel": [
-      5,
-      1
-    ],
-    "diamond_pickaxe": [
-      6,
-      1
-    ],
-    "diamond_axe": [
-      7,
-      1
-    ],
-    "stick": [
-      8,
-      1
-    ],
-    "bowl": [
-      9,
-      1
-    ],
-    "mushroom_stew": [
-      10,
-      1
-    ],
-    "gold_sword": [
-      11,
-      1
-    ],
-    "gold_shovel": [
-      12,
-      1
-    ],
-    "gold_pickaxe": [
-      13,
-      1
-    ],
-    "gold_axe": [
-      14,
-      1
-    ],
-    "string": [
-      15,
-      1
-    ],
-    "feather": [
-      0,
-      2
-    ],
-    "gunpowder": [
-      1,
-      2
-    ],
-    "wooden_hoe": [
-      2,
-      2
-    ],
-    "stone_hoe": [
-      3,
-      2
-    ],
-    "iron_hoe": [
-      4,
-      2
-    ],
-    "diamond_hoe": [
-      5,
-      2
-    ],
-    "gold_hoe": [
-      6,
-      2
-    ],
-    "wheat_seeds": [
-      7,
-      2
-    ],
-    "wheat": [
-      8,
-      2
-    ],
-    "bread": [
-      9,
-      2
-    ],
-    "leather_cap": [
-      0,
-      3
-    ],
-    "leather_tunic": [
-      1,
-      3
-    ],
-    "leather_pants": [
-      2,
-      3
-    ],
-    "leather_boots": [
-      3,
-      3
-    ],
-    "chain_helmet": [
-      4,
-      3
-    ],
-    "chain_chestplate": [
-      5,
-      3
-    ],
-    "chain_leggings": [
-      6,
-      3
-    ],
-    "chain_boots": [
-      7,
-      3
-    ],
-    "iron_helmet": [
-      8,
-      3
-    ],
-    "iron_chestplate": [
-      9,
-      3
-    ],
-    "iron_leggings": [
-      10,
-      3
-    ],
-    "iron_boots": [
-      11,
-      3
-    ],
-    "diamond_helmet": [
-      12,
-      3
-    ],
-    "diamond_chestplate": [
-      13,
-      3
-    ],
-    "diamond_leggings": [
-      14,
-      3
-    ],
-    "diamond_boots": [
-      15,
-      3
-    ],
-    "gold_helmet": [
-      0,
-      4
-    ],
-    "gold_chestplate": [
-      1,
-      4
-    ],
-    "gold_leggings": [
-      2,
-      4
-    ],
-    "gold_boots": [
-      3,
-      4
-    ],
-    "flint": [
-      4,
-      4
-    ],
-    "raw_porkchop": [
-      5,
-      4
-    ],
-    "cooked_porkchop": [
-      6,
-      4
-    ],
-    "painting": [
-      7,
-      4
-    ],
-    "golden_apple": [
-      8,
-      4
-    ],
-    "sign": [
-      9,
-      4
-    ],
-    "wooden_door": [
-      10,
-      4
-    ],
-    "bucket": [
-      11,
-      4
-    ],
-    "water_bucket": [
-      12,
-      4
-    ],
-    "lava_bucket": [
-      13,
-      4
-    ],
-    "minecart": [
-      14,
-      4
-    ],
-    "saddle": [
-      15,
-      4
-    ],
-    "iron_door": [
-      0,
-      5
-    ],
-    "redstone": [
-      1,
-      5
-    ],
-    "snowball": [
-      2,
-      5
-    ],
-    "boat": [
-      3,
-      5
-    ],
-    "leather": [
-      4,
-      5
-    ],
-    "milk_bucket": [
-      5,
-      5
-    ],
-    "clay_brick": [
-      6,
-      5
-    ],
-    "clay_ball": [
-      7,
-      5
-    ],
-    "sugar_cane": [
-      8,
-      5
-    ],
-    "paper": [
-      9,
-      5
-    ],
-    "book": [
-      10,
-      5
-    ],
-    "slimeball": [
-      11,
-      5
-    ],
-    "storage_minecart": [
-      12,
-      5
-    ],
-    "powered_minecart": [
-      13,
-      5
-    ],
-    "egg": [
-      14,
-      5
-    ],
-    "compass": [
-      15,
-      5
-    ],
-    "fishing_rod": [
-      0,
-      6
-    ],
-    "clock": [
-      1,
-      6
-    ],
-    "glowstone_dust": [
-      2,
-      6
-    ],
-    "fish_raw": [
-      3,
-      6
-    ],
-    "fish_cooked": [
-      4,
-      6
-    ],
-    "dye_ink_sac": [
-      5,
-      6
-    ],
-    "dye_red": [
-      6,
-      6
-    ],
-    "dye_green": [
-      7,
-      6
-    ],
-    "dye_brown": [
-      8,
-      6
-    ],
-    "dye_blue": [
-      9,
-      6
-    ],
-    "dye_purple": [
-      10,
-      6
-    ],
-    "dye_cyan": [
-      11,
-      6
-    ],
-    "dye_light_gray": [
-      12,
-      6
-    ],
-    "dye_gray": [
-      13,
-      6
-    ],
-    "dye_pink": [
-      14,
-      6
-    ],
-    "dye_lime": [
-      15,
-      6
-    ],
-    "dye_yellow": [
-      0,
-      7
-    ],
-    "dye_light_blue": [
-      1,
-      7
-    ],
-    "dye_magenta": [
-      2,
-      7
-    ],
-    "dye_orange": [
-      3,
-      7
-    ],
-    "bone": [
-      4,
-      7
-    ],
-    "sugar": [
-      5,
-      7
-    ],
-    "cake": [
-      6,
-      7
-    ],
-    "bed": [
-      7,
-      7
-    ],
-    "repeater_off": [
-      8,
-      7
-    ],
-    "repeater_on": [
-      9,
-      7
-    ],
-    "cookie": [
-      10,
-      7
-    ],
-    "shears": [
-      11,
-      7
-    ],
-    "melon": [
-      0,
-      8
-    ],
-    "pumpkin_seeds": [
-      1,
-      8
-    ],
-    "melon_seeds": [
-      2,
-      8
-    ],
-    "raw_beef": [
-      3,
-      8
-    ],
-    "steak": [
-      4,
-      8
-    ],
-    "raw_chicken": [
-      5,
-      8
-    ],
-    "cooked_chicken": [
-      6,
-      8
-    ],
-    "rotten_flesh": [
-      7,
-      8
-    ],
-    "ender_pearl": [
-      8,
-      8
-    ],
-    "blaze_rod": [
-      9,
-      8
-    ],
-    "ghast_tear": [
-      10,
-      8
-    ],
-    "gold_nugget": [
-      11,
-      8
-    ],
-    "nether_wart": [
-      12,
-      8
-    ],
-    "potion_bottle_empty": [
-      0,
-      9
-    ],
-    "potion_bottle_splash": [
-      1,
-      9
-    ],
-    "glass_bottle": [
-      2,
-      9
-    ],
-    "spider_eye": [
-      3,
-      9
-    ],
-    "fermented_spider_eye": [
-      4,
-      9
-    ],
-    "blaze_powder": [
-      5,
-      9
-    ],
-    "magma_cream": [
-      6,
-      9
-    ],
-    "brewing_stand": [
-      7,
-      9
-    ],
-    "cauldron": [
-      8,
-      9
-    ],
-    "eye_of_ender": [
-      9,
-      9
-    ],
-    "glistering_melon": [
-      10,
-      9
-    ]
+    "0,0": "leather_helmet",
+    "1,0": "chainmail_helmet",
+    "2,0": "iron_helmet",
+    "3,0": "diamond_helmet",
+    "4,0": "gold_helmet",
+    "5,0": "flint_and_steel",
+    "6,0": "flint",
+    "7,0": "coal",
+    "8,0": "string",
+    "9,0": "seeds",
+    "10,0": "apple",
+    "11,0": "golden_apple",
+    "12,0": "egg",
+    "13,0": "sugar",
+    "14,0": "snow_ball",
+    "15,0": "helmet_overlay",
+    "0,1": "leather_chestplate",
+    "1,1": "chainmail_chestplate",
+    "2,1": "iron_chestplate",
+    "3,1": "diamond_chestplate",
+    "4,1": "gold_chestplate",
+    "5,1": "bow",
+    "6,1": "brick",
+    "7,1": "iron_ingot",
+    "8,1": "feather",
+    "9,1": "wheat",
+    "10,1": "painting",
+    "11,1": "sugar_cane",
+    "12,1": "bone",
+    "13,1": "cake",
+    "14,1": "slime_ball",
+    "15,1": "chestplate_overlay",
+    "0,2": "leather_leggings",
+    "1,2": "chainmail_leggings",
+    "2,2": "iron_leggings",
+    "3,2": "diamond_leggings",
+    "4,2": "gold_leggings",
+    "5,2": "arrow",
+    "6,2": "quiver",
+    "7,2": "gold_ingot",
+    "8,2": "gunpowder",
+    "9,2": "bread",
+    "10,2": "oak_sign",
+    "11,2": "door_wood",
+    "12,2": "door_iron",
+    "13,2": "bed",
+    "14,2": "fire_charge",
+    "15,2": "leggings_overlay",
+    "0,3": "leather_boots",
+    "1,3": "chainmail_boots",
+    "2,3": "iron_boots",
+    "3,3": "diamond_boots",
+    "4,3": "gold_boots",
+    "5,3": "stick",
+    "6,3": "compass",
+    "7,3": "diamond",
+    "8,3": "redstone",
+    "9,3": "clay",
+    "10,3": "paper",
+    "11,3": "book",
+    "12,3": "filled_map",
+    "13,3": "pumpkin_seeds",
+    "14,3": "melon_seeds",
+    "15,3": "boots_overlay",
+    "0,4": "leather_sword",
+    "1,4": "chainmail_sword",
+    "2,4": "iron_sword",
+    "3,4": "diamond_sword",
+    "4,4": "gold_sword",
+    "5,4": "fishing_rod",
+    "6,4": "clock",
+    "7,4": "bowl",
+    "8,4": "mushroom_stew",
+    "9,4": "glowstone",
+    "10,4": "bucket",
+    "11,4": "water_bucket",
+    "12,4": "lava_bucket",
+    "13,4": "milk_bucket",
+    "14,4": "ink_sack",
+    "15,4": "gray_dye",
+    "0,5": "leather_shovel",
+    "1,5": "chainmail_shovel",
+    "2,5": "iron_shovel",
+    "3,5": "diamond_shovel",
+    "4,5": "gold_shovel",
+    "5,5": "fishing_rod_cast",
+    "6,5": "repeater",
+    "7,5": "raw_porkchop",
+    "8,5": "cooked_porkchop",
+    "9,5": "fish",
+    "10,5": "cooked_fish",
+    "11,5": "rotten_flesh",
+    "12,5": "cookie",
+    "13,5": "shears",
+    "14,5": "red_dye",
+    "15,5": "pink_dye",
+    "0,6": "leather_pickaxe",
+    "1,6": "chainmail_pickaxe",
+    "2,6": "iron_pickaxe",
+    "3,6": "diamond_pickaxe",
+    "4,6": "gold_pickaxe",
+    "5,6": "bow_pulled_0",
+    "6,6": "carrot_on_a_stick",
+    "7,6": "leather",
+    "8,6": "saddle",
+    "9,6": "raw_beef",
+    "10,6": "cooked_beef",
+    "11,6": "ender_pearl",
+    "12,6": "blaze_rod",
+    "13,6": "melon_slice",
+    "14,6": "green_dye",
+    "15,6": "lime_dye",
+    "0,7": "leather_axe",
+    "1,7": "chainmail_axe",
+    "2,7": "iron_axe",
+    "3,7": "diamond_axe",
+    "4,7": "gold_axe",
+    "5,7": "bow_pulled_1",
+    "6,7": "baked_potato",
+    "7,7": "potato",
+    "8,7": "carrot",
+    "9,7": "raw_chicken",
+    "10,7": "cooked_chicken",
+    "11,7": "ghast_tear",
+    "12,7": "gold_nugget",
+    "13,7": "nether_wart",
+    "14,7": "cocoa_beans",
+    "15,7": "yellow_dye",
+    "0,8": "leather_hoe",
+    "1,8": "chainmail_hoe",
+    "2,8": "iron_hoe",
+    "3,8": "diamond_hoe",
+    "4,8": "gold_hoe",
+    "5,8": "bow_pulled_2",
+    "6,8": "poisonous_potato",
+    "7,8": "minecart",
+    "8,8": "boat",
+    "9,8": "glistening_melon",
+    "10,8": "fermented_spider_eye",
+    "11,8": "spider_eye",
+    "12,8": "bottle",
+    "13,8": "potion_overlay",
+    "14,8": "lapis_lazuli",
+    "15,8": "light_blue_dye",
+    "0,9": "leather_helmet_overlay",
+    "1,9": "unused",
+    "2,9": "unused",
+    "3,9": "unused",
+    "4,9": "unused",
+    "5,9": "reserved",
+    "6,9": "golden_carrot",
+    "7,9": "minecart_with_chest",
+    "8,9": "pumpkin_pie",
+    "9,9": "monster_egg",
+    "10,9": "throwable_potion",
+    "11,9": "ender_eye",
+    "12,9": "cauldron",
+    "13,9": "blaze_powder",
+    "14,9": "purple_dye",
+    "15,9": "magenta_dye",
+    "0,10": "leather_chestplate_overlay",
+    "1,10": "unused",
+    "2,10": "unused",
+    "3,10": "unused",
+    "4,10": "unused",
+    "5,10": "reserved",
+    "6,10": "reserved",
+    "7,10": "minecart_with_furnace",
+    "8,10": "unused",
+    "9,10": "monster_egg_overlay",
+    "10,10": "ruby",
+    "11,10": "experience_bottle",
+    "12,10": "brewing_stand",
+    "13,10": "magma_cream",
+    "14,10": "cyan_dye",
+    "15,10": "orange_dye",
+    "0,11": "leather_leggings_overlay",
+    "1,11": "reserved",
+    "2,11": "reserved",
+    "3,11": "reserved",
+    "4,11": "unused",
+    "5,11": "reserved",
+    "6,11": "unused",
+    "7,11": "unused",
+    "8,11": "unused",
+    "9,11": "nether_star",
+    "10,11": "emerald",
+    "11,11": "book_and_quill",
+    "12,11": "written_book",
+    "13,11": "flower_pot",
+    "14,11": "light_gray_dye",
+    "15,11": "bone_meal",
+    "0,12": "leather_boots_overlay",
+    "1,12": "unused",
+    "2,12": "unused",
+    "3,12": "unused",
+    "4,12": "reserved",
+    "5,12": "reserved",
+    "6,12": "reserved",
+    "7,12": "reserved",
+    "8,12": "reserved",
+    "9,12": "firework_rocket",
+    "10,12": "firework_star",
+    "11,12": "firework_star_overlay",
+    "12,12": "reserved",
+    "13,12": "map",
+    "14,12": "item_frame",
+    "15,12": "enchanted_book",
+    "0,13": "unused",
+    "1,13": "unused",
+    "2,13": "reserved",
+    "3,13": "reserved",
+    "4,13": "reserved",
+    "5,13": "reserved",
+    "6,13": "unused",
+    "7,13": "unused",
+    "8,13": "reserved",
+    "9,13": "reserved",
+    "10,13": "reserved",
+    "11,13": "reserved",
+    "12,13": "unused",
+    "13,13": "unused",
+    "14,13": "unused",
+    "15,13": "unused",
+    "0,14": "skeleton_skull",
+    "1,14": "wither_skeleton_skull",
+    "2,14": "zombie_head",
+    "3,14": "player_head",
+    "4,14": "creeper_head",
+    "5,14": "reserved",
+    "6,14": "reserved",
+    "7,14": "reserved",
+    "8,14": "reserved",
+    "9,14": "reserved",
+    "10,14": "reserved",
+    "11,14": "reserved",
+    "12,14": "unused",
+    "13,14": "unused",
+    "14,14": "unused",
+    "15,14": "unused",
+    "0,15": "music_disc_13",
+    "1,15": "music_disc_cat",
+    "2,15": "music_disc_blocks",
+    "3,15": "music_disc_chirp",
+    "4,15": "music_disc_far",
+    "5,15": "music_disc_mall",
+    "6,15": "music_disc_mellohi",
+    "7,15": "music_disc_stal",
+    "8,15": "music_disc_strad",
+    "9,15": "music_disc_ward",
+    "10,15": "music_disc_11",
+    "11,15": "music_disc_wait",
+    "12,15": "music_disc_placeholder_0",
+    "13,15": "music_disc_placeholder_1",
+    "14,15": "music_disc_placeholder_2",
+    "15,15": "music_disc_placeholder_3"
   }
 }
