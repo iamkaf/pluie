@@ -24,14 +24,8 @@ npm run watch all           # Watch all versions
 
 ### Texture Editing
 ```bash
-npm run edit b1.7.3/terrain.png     # Edit terrain.png in Aseprite
-npm run aseprite b1.7.3/items.png   # Alternative command name
-```
-
-### Deployment
-```bash
-npm run deploy               # Deploy to Minecraft
-npm run deploy all          # Deploy all versions
+npm run edit blocks/texture.png    # Edit any texture in Aseprite
+npm run aseprite blocks/texture.png  # Alternative command name
 ```
 
 ### Management
@@ -41,59 +35,77 @@ npm run status               # Show system status
 npm run typecheck            # Run TypeScript type checking
 ```
 
-### Setup
+### Additional Tools
 ```bash
-npm install                 # Install dependencies
+npm run decompose terrain.png    # Decompose terrain.png into individual textures
 ```
 
 ## Architecture
 
-### CLI-Based Structure
-- `src/` - Complete CLI toolchain and core functionality
-  - `commands/` - Individual CLI command implementations
-  - `build.ts` - Core build logic
-  - `watch.ts` - Hot reload system with chokidar
-  - `deploy.ts` - Deployment functionality
-  - `cli.ts` - Commander.js CLI setup
-- `versions/` - Multi-version texture pack structure
-  - `b1.7.3/` - Beta 1.7.3 textures
-  - `shared/` - Shared assets used across versions
-- `output/` - Generated ZIP files (gitignored)
-- `backups/` - Automatic deployment backups
+### Advanced Asset Pipeline
+The project uses a sophisticated asset processing pipeline that transforms individual textures from shared assets into version-specific formats:
 
-### Texture Pack Organization
-Each version directory follows the classic Minecraft texture pack structure:
-- `terrain.png` - All block textures (256x256 single file for Beta 1.7.3)
-- `items.png` - Item and GUI textures
-- `environment/` - Sun, moon, clouds
+- **Pipeline Core (`src/pipeline/`)**:
+  - `pipeline.ts` - Main orchestrator for asset processing workflow
+  - `types.ts` - Core interfaces and AssetType enum for pipeline architecture
+  - `discovery.ts` - Asset discovery and classification system
+  - `registry.ts` - Transformer registration and version mapping
+  - `transformers/` - Version-specific transformation logic
+
+- **Version-Specific Transformers**:
+  - Each Minecraft version has its own transformer implementing `VersionTransformer`
+  - Beta 1.7.3 transformer composes individual block textures into legacy `terrain.png` grid
+  - Transformers use JSON coordinate files for texture positioning (e.g., `atlas_coordinates_terrain.json`)
+
+### Asset Organization and Processing
+
+**Source Structure (`versions/shared/assets/`)**:
+- `blocks/` - Individual block texture files (16x16 PNG files)
 - `gui/` - Interface elements (inventory, crafting, furnace)
+- `environment/` - Sun, moon, clouds
 - `misc/` - Particles, color maps
 - `pack.txt` - Pack metadata
 
-### Hot Reload System
-- **File Watching:** Uses chokidar for cross-platform file monitoring
-- **Debouncing:** 500ms delay to prevent excessive builds during rapid editing
-- **Auto-Deployment:** Integrates with deployment system for instant updates
-- **Shared Assets:** Changes in `versions/shared/` trigger rebuilds of all versions
-- **Version-Specific:** Changes in version directories rebuild only that version
+**Pipeline Processing**:
+1. **Asset Discovery**: Scans shared assets and classifies files by type
+2. **Version Matching**: Applies appropriate transformer for target Minecraft version
+3. **Format Transformation**: Converts individual textures to version-specific format
+   - Beta 1.7.3: Composes 16x16 grid into single 256x256 `terrain.png`
+   - Unused coordinates filled with magenta `unused.png` texture
+4. **Asset Assembly**: Copies other files directly or transforms as needed
 
-### Build System
-- TypeScript-based with comprehensive error handling
-- Uses `archiver` library for ZIP creation with maximum compression
-- Outputs to `output/` directory with naming pattern: `Pluie-{version}.zip`
-- Multi-version support with shared asset pipeline
-- Automatic backup system before deployment
+### Coordinate-Based Texture Mapping
+
+The Beta 1.7.3 transformer uses JSON coordinate mapping files:
+- `atlas_coordinates_terrain.json` - Maps texture names to grid positions
+- Format: `"x,y": "texture_name"` (e.g., `"0,0": "grass_top"`)
+- Supports unused positions marked as `"unused"` and filled with magenta texture
+- Tile size configurable (typically 16px for Beta 1.7.3)
+
+### CLI Architecture
+
+Built with Commander.js for professional command structure:
+- `src/cli.ts` - Main CLI entry point and command definitions
+- `src/build.ts` - Build command implementation using asset pipeline
+- `src/watch.ts` - Hot reload system with chokidar integration
+- `src/deploy.ts` - Deployment functionality
+- `src/aseprite.ts` - Aseprite integration for texture editing
+
+### Hot Reload System
+- **File Watching**: Uses chokidar for cross-platform file monitoring
+- **Debouncing**: 500ms delay to prevent excessive builds during rapid editing
+- **Asset Type Awareness**: Different rebuild strategies for different asset types
+- **Shared Assets**: Changes in `versions/shared/` trigger rebuilds of all versions
 
 ### Environment Configuration
 - `ASEPRITE_PATH` environment variable required for texture editing
 - `.env` file supported via dotenvx
-- `.deployrc` - Deployment configuration
-- `.hotreloadrc` - Hot reload settings
 - Aseprite launcher validates executable exists before launching
 
 ### Key Technical Details
 - Beta 1.7.3 uses legacy texture format with single `terrain.png` containing all blocks
-- CLI built with Commander.js for professional command structure
-- Modular TypeScript architecture with clean separation of concerns
-- Hot reload provides instant feedback for faster development iteration
-- Comprehensive error handling and validation throughout the system
+- TypeScript-based with comprehensive error handling
+- Uses Sharp library for image processing and composition
+- Uses `archiver` library for ZIP creation with maximum compression
+- Outputs to `output/` directory with naming pattern: `Pluie-{version}.zip`
+- ARR license - all rights reserved to iamkaf
