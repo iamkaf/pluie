@@ -87,7 +87,6 @@ npm run watch
 ## Configuration
 
 - `.deployrc` - Deployment configuration
-- `.hotreloadrc` - Hot reload settings
 - `.env` - Environment variables (ASEPRITE_PATH)
 
 ## Environment Setup

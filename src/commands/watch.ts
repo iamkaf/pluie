@@ -14,9 +14,9 @@ export function setupWatchCommand(program: Command): void {
                 console.log('🔍 Pluie Texture Pack Hot Reload');
                 console.log('');
 
-                // Import and parse config
-                const { parseConfig } = await import('../watch.js');
-                const config = parseConfig();
+                // Import default config
+                const { DEFAULT_HOT_RELOAD_CONFIG } = await import('../watch.js');
+                const config = { ...DEFAULT_HOT_RELOAD_CONFIG };
 
                 // Override config with command line options
                 if (options.deploy === false) config.deploy_on_change = false;

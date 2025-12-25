@@ -21,7 +21,7 @@ export function setupStatusCommand(program: Command): void {
                 }
 
                 // Check config files
-                const configs = ['.deployrc', '.hotreloadrc'];
+                const configs = ['.deployrc'];
                 for (const config of configs) {
                     const configPath = path.join(process.cwd(), config);
                     const exists = fs.existsSync(configPath);

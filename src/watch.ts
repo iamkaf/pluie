@@ -338,65 +338,14 @@ export class TextureWatcher {
 }
 
 /**
- * Parse hot reload configuration file
+ * Default hot reload configuration
  */
-export function parseConfig(): HotReloadConfig {
-    const configPath = path.join(__dirname, '..', '.hotreloadrc');
-    const defaultConfig: HotReloadConfig = {
-        deploy_on_change: true,
-        debounce_ms: 500,
-        notifications: true,
-        watch_all_versions: false
-    };
-
-    if (!fs.existsSync(configPath)) {
-        return defaultConfig;
-    }
-
-    try {
-        const config: HotReloadConfig = { ...defaultConfig };
-        const content = fs.readFileSync(configPath, 'utf8');
-
-        for (const [lineNumber, rawLine] of content.split('\n').entries()) {
-            const trimmed = rawLine.trim();
-            if (!trimmed || trimmed.startsWith('#')) {
-                continue;
-            }
-
-            const [key, ...valueParts] = trimmed.split('=');
-            if (!key || valueParts.length === 0) {
-                console.warn(`⚠️  Invalid config line ${lineNumber + 1}: ${trimmed}`);
-                continue;
-            }
-
-            const normalizedKey = key.trim().toLowerCase();
-            const value = valueParts.join('=').trim();
-
-            switch (normalizedKey) {
-                case 'deploy_on_change':
-                    config.deploy_on_change = value.toLowerCase() === 'true';
-                    break;
-                case 'debounce_ms':
-                    const parsedMs = parseInt(value, 10);
-                    config.debounce_ms = isNaN(parsedMs) ? 500 : Math.max(100, parsedMs);
-                    break;
-                case 'notifications':
-                    config.notifications = value.toLowerCase() === 'true';
-                    break;
-                case 'watch_all_versions':
-                    config.watch_all_versions = value.toLowerCase() === 'true';
-                    break;
-                default:
-                    console.warn(`⚠️  Unknown config key: ${normalizedKey}`);
-            }
-        }
-
-        return config;
-    } catch (error) {
-        console.warn(`⚠️  Failed to parse config file: ${error instanceof Error ? error.message : error}`);
-        return defaultConfig;
-    }
-}
+export const DEFAULT_HOT_RELOAD_CONFIG: HotReloadConfig = {
+    deploy_on_change: true,
+    debounce_ms: 500,
+    notifications: true,
+    watch_all_versions: false
+};
 
 /**
  * Handle process termination
@@ -446,7 +395,7 @@ function validateArguments(): string | undefined {
 async function main(): Promise<void> {
     try {
         const targetVersion = validateArguments();
-        const config = parseConfig();
+        const config = { ...DEFAULT_HOT_RELOAD_CONFIG };
         const watcher = new TextureWatcher(config);
 
         setupGracefulShutdown(watcher);
